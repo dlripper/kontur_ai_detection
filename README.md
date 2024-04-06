@@ -11,7 +11,7 @@
 - `pip install -r requirements.txt`
 
 ### Загрузите веса, если хотите инференс/тест
-- Run `bash weights/download_weights.sh`
+- `bash weights/download_weights.sh`
 
 
 ## (2) Быстрый Инференс
