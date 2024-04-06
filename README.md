@@ -22,8 +22,8 @@ This command runs the model on a single image, and outputs the uncalibrated pred
 
 ```
 # Model weights need to be downloaded.
-python demo.py -f examples/real.png -m weights/blur_jpg_prob0.5.pth
-python demo.py -f examples/fake.png -m weights/blur_jpg_prob0.5.pth
+python inference.py -f examples/real.png -m weights/blur_jpg_prob0.5.pth
+python inference.py -f examples/fake.png -m weights/blur_jpg_prob0.5.pth
 ```
 
 ### На датасете
