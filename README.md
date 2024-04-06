@@ -7,17 +7,16 @@
 
 ## (1) Setup
 
-### Install packages
-- Install PyTorch ([pytorch.org](http://pytorch.org))
+### Зависимости, гарантирующие, что все получится!
 - `pip install -r requirements.txt`
 
-### Download model weights
+### Загрузите веса, если хотите инференс/тест
 - Run `bash weights/download_weights.sh`
 
 
-## (2) Quick start
+## (2) Быстрый Инференс
 
-### Run on a single image
+### На одной фотографии
 
 This command runs the model on a single image, and outputs the uncalibrated prediction.
 
@@ -27,7 +26,7 @@ python demo.py -f examples/real.png -m weights/blur_jpg_prob0.5.pth
 python demo.py -f examples/fake.png -m weights/blur_jpg_prob0.5.pth
 ```
 
-### Run on a dataset
+### На датасете
 
 This command computes AP and accuracy on a dataset. See the [provided directory](examples/realfakedir) for an example. Put your real/fake images into the appropriate subfolders to test.
 
