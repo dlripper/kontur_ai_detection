@@ -1,0 +1,80 @@
+2024-04-07 15:32:54,822 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Current SDK version is 0.16.5
+2024-04-07 15:32:54,822 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Configure stats pid to 1613586
+2024-04-07 15:32:54,822 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Loading settings from /home/aim_m_tre/.config/wandb/settings
+2024-04-07 15:32:54,822 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Loading settings from /home/aim_m_tre/BSRGAN/module_2/kontur_ai_detection/wandb/settings
+2024-04-07 15:32:54,822 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2024-04-07 15:32:54,822 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program': '<python with no main file>'}
+2024-04-07 15:32:54,822 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Applying login settings: {}
+2024-04-07 15:32:54,822 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Applying login settings: {}
+2024-04-07 15:32:54,823 INFO    MainThread:1613586 [wandb_init.py:_log_setup():527] Logging user logs to /home/aim_m_tre/BSRGAN/module_2/kontur_ai_detection/wandb/run-20240407_153254-imkxbwbf/logs/debug.log
+2024-04-07 15:32:54,823 INFO    MainThread:1613586 [wandb_init.py:_log_setup():528] Logging internal logs to /home/aim_m_tre/BSRGAN/module_2/kontur_ai_detection/wandb/run-20240407_153254-imkxbwbf/logs/debug-internal.log
+2024-04-07 15:32:54,823 INFO    MainThread:1613586 [wandb_init.py:_jupyter_setup():473] configuring jupyter hooks <wandb.sdk.wandb_init._WandbInit object at 0x7f8b49ae7790>
+2024-04-07 15:32:54,824 INFO    MainThread:1613586 [wandb_init.py:init():567] calling init triggers
+2024-04-07 15:32:54,824 INFO    MainThread:1613586 [wandb_init.py:init():574] wandb.init called with sweep_config: {}
+config: {'lr': 0.0001, 'architecture': 'resnet50_multiple_fc', 'dataset': 'given', 'epochs': 50}
+2024-04-07 15:32:54,824 INFO    MainThread:1613586 [wandb_init.py:init():617] starting backend
+2024-04-07 15:32:54,824 INFO    MainThread:1613586 [wandb_init.py:init():621] setting up manager
+2024-04-07 15:32:54,828 INFO    MainThread:1613586 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2024-04-07 15:32:54,840 INFO    MainThread:1613586 [wandb_init.py:init():629] backend started and connected
+2024-04-07 15:32:54,858 INFO    MainThread:1613586 [wandb_run.py:_label_probe_notebook():1299] probe notebook
+2024-04-07 15:32:54,860 INFO    MainThread:1613586 [wandb_run.py:_label_probe_notebook():1309] Unable to probe notebook: 'NoneType' object has no attribute 'get'
+2024-04-07 15:32:54,860 INFO    MainThread:1613586 [wandb_init.py:init():721] updated telemetry
+2024-04-07 15:32:54,927 INFO    MainThread:1613586 [wandb_init.py:init():754] communicating run to backend with 90.0 second timeout
+2024-04-07 15:32:55,606 INFO    MainThread:1613586 [wandb_run.py:_on_init():2344] communicating current version
+2024-04-07 15:32:55,999 INFO    MainThread:1613586 [wandb_run.py:_on_init():2353] got version response upgrade_message: "wandb version 0.16.6 is available!  To upgrade, please run:\n $ pip install wandb --upgrade"
+
+2024-04-07 15:32:55,999 INFO    MainThread:1613586 [wandb_init.py:init():805] starting run threads in backend
+2024-04-07 15:32:59,609 WARNING MainThread:1613586 [wandb_init.py:init():1209] interrupted
+Traceback (most recent call last):
+  File "/home/aim_m_tre/anaconda3/lib/python3.11/site-packages/wandb/sdk/wandb_init.py", line 1187, in init
+    run = wi.init()
+          ^^^^^^^^^
+  File "/home/aim_m_tre/anaconda3/lib/python3.11/site-packages/wandb/sdk/wandb_init.py", line 818, in init
+    run_start_result = run_start_handle.wait(timeout=30)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/aim_m_tre/anaconda3/lib/python3.11/site-packages/wandb/sdk/lib/mailbox.py", line 283, in wait
+    found, abandoned = self._slot._get_and_clear(timeout=wait_timeout)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/aim_m_tre/anaconda3/lib/python3.11/site-packages/wandb/sdk/lib/mailbox.py", line 130, in _get_and_clear
+    if self._wait(timeout=timeout):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/aim_m_tre/anaconda3/lib/python3.11/site-packages/wandb/sdk/lib/mailbox.py", line 126, in _wait
+    return self._event.wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/aim_m_tre/anaconda3/lib/python3.11/threading.py", line 629, in wait
+    signaled = self._cond.wait(timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/aim_m_tre/anaconda3/lib/python3.11/threading.py", line 331, in wait
+    gotit = waiter.acquire(True, timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+2024-04-07 15:33:18,503 INFO    MainThread:1613586 [wandb_settings.py:_apply_login():1941] Applying login settings: {}
+2024-04-07 15:33:18,529 INFO    MainThread:1613586 [wandb_settings.py:_apply_login():1941] Applying login settings: {}
+2024-04-07 15:33:18,551 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Current SDK version is 0.16.5
+2024-04-07 15:33:18,552 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Configure stats pid to 1613586
+2024-04-07 15:33:18,552 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Loading settings from /home/aim_m_tre/.config/wandb/settings
+2024-04-07 15:33:18,552 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Loading settings from /home/aim_m_tre/BSRGAN/module_2/kontur_ai_detection/wandb/settings
+2024-04-07 15:33:18,552 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2024-04-07 15:33:18,552 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program': '<python with no main file>'}
+2024-04-07 15:33:18,552 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Applying login settings: {}
+2024-04-07 15:33:18,552 INFO    MainThread:1613586 [wandb_setup.py:_flush():76] Applying login settings: {}
+2024-04-07 15:33:18,552 INFO    MainThread:1613586 [wandb_init.py:_log_setup():527] Logging user logs to /home/aim_m_tre/BSRGAN/module_2/kontur_ai_detection/wandb/run-20240407_153318-ry8tb04b/logs/debug.log
+2024-04-07 15:33:18,552 INFO    MainThread:1613586 [wandb_init.py:_log_setup():528] Logging internal logs to /home/aim_m_tre/BSRGAN/module_2/kontur_ai_detection/wandb/run-20240407_153318-ry8tb04b/logs/debug-internal.log
+2024-04-07 15:33:18,553 INFO    MainThread:1613586 [wandb_init.py:init():567] calling init triggers
+2024-04-07 15:33:18,553 INFO    MainThread:1613586 [wandb_init.py:init():574] wandb.init called with sweep_config: {}
+config: {'lr': 0.0001, 'architecture': 'resnet50_multiple_fc_example', 'dataset': 'given', 'epochs': 50}
+2024-04-07 15:33:18,553 INFO    MainThread:1613586 [wandb_init.py:init():617] starting backend
+2024-04-07 15:33:18,553 INFO    MainThread:1613586 [wandb_init.py:init():621] setting up manager
+2024-04-07 15:33:18,558 INFO    MainThread:1613586 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2024-04-07 15:33:18,559 INFO    MainThread:1613586 [wandb_init.py:init():629] backend started and connected
+2024-04-07 15:33:18,577 INFO    MainThread:1613586 [wandb_run.py:_label_probe_notebook():1299] probe notebook
+2024-04-07 15:33:18,577 INFO    MainThread:1613586 [wandb_run.py:_label_probe_notebook():1309] Unable to probe notebook: 'NoneType' object has no attribute 'get'
+2024-04-07 15:33:18,577 INFO    MainThread:1613586 [wandb_init.py:init():721] updated telemetry
+2024-04-07 15:33:18,589 INFO    MainThread:1613586 [wandb_init.py:init():754] communicating run to backend with 90.0 second timeout
+2024-04-07 15:33:19,187 INFO    MainThread:1613586 [wandb_run.py:_on_init():2344] communicating current version
+2024-04-07 15:33:49,202 INFO    MainThread:1613586 [wandb_init.py:init():805] starting run threads in backend
+2024-04-07 15:34:20,272 INFO    MainThread:1613586 [wandb_run.py:_console_start():2323] atexit reg
+2024-04-07 15:34:20,273 INFO    MainThread:1613586 [wandb_run.py:_redirect():2178] redirect: wrap_raw
+2024-04-07 15:34:20,273 INFO    MainThread:1613586 [wandb_run.py:_redirect():2243] Wrapping output streams.
+2024-04-07 15:34:20,274 INFO    MainThread:1613586 [wandb_run.py:_redirect():2268] Redirects installed.
+2024-04-07 15:34:20,276 INFO    MainThread:1613586 [wandb_init.py:init():848] run started, returning control to user process

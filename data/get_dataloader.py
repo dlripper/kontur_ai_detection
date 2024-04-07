@@ -1,3 +1,7 @@
+import os
+import torch
+import pandas as pd
+import numpy as np
 import torchvision.transforms.functional as TF
 import torchvision.transforms as transforms
 from PIL import Image
@@ -56,9 +60,10 @@ def get_train_test_dataloader(additional_train_data, included_formats=["png", "j
     df = get_recovered(csv_name="train.csv", formats=included_formats)
     df_train, df_test = train_test_split(df, test_size=test_rate, random_state=random_state)
     df_train.id = "data/generated-or-not/images/" + df_train.id
+    
     for df_additional in additional_train_data:
         df_train = concatenated_df = pd.concat([df_train, df_additional], ignore_index=True)
-
+    df_train.index = np.arange(len(df_train))
     transform_list = []
     for train_transform in train_transforms:
         transform_list.append(transform_dict[train_transform])
