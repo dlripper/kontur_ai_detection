@@ -1,1 +1,1 @@
-from .basic_visualization import visualise, visualise_height_width_distr
+from .basic_visualization import visualise, visualise_height_width_distr, show_difference, show_difference_predefined

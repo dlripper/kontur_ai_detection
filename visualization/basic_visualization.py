@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
+import torchvision.transforms as transforms
 from PIL import Image
 
 
@@ -41,3 +41,62 @@ def visualise_height_width_distr(df):
         plt.legend()
         plt.show()
 
+
+img_transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+])
+
+
+def show_difference(path_init, path_modified, addition=None):
+    pic_np = Image.open(path_init).convert('RGB')
+    pic_np = (np.array(img_transform(pic_np).permute(1, 2, 0).clamp_(0, 1)) * 255).round().astype(np.int32)
+    numpy_pred_pic = np.array(Image.open(path_modified).convert('RGB'))
+
+    grad_img_norm = np.linalg.norm(pic_np - numpy_pred_pic.astype(np.int32), axis=2)
+    grad_img_norm /= (np.max(grad_img_norm) if np.max(grad_img_norm) != 0 else 1)
+    cmap = plt.cm.jet  
+    grad_img_gray = cmap(grad_img_norm)[:, :, :3] 
+
+    fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+
+    axs[0].imshow(pic_np)
+    axs[0].set_title('Initial Image')
+    axs[0].axis('off')
+
+    axs[1].imshow(numpy_pred_pic)
+    axs[1].set_title('Modified Image')
+    axs[1].axis('off')
+
+    axs[2].imshow(grad_img_gray)
+    axs[2].set_title('Gradient Image')
+    axs[2].axis('off')
+
+    plt.suptitle(f'Comparison of Images for addition {addition}', fontsize=16)
+    plt.show()
+
+
+def show_difference_predefined(path_init, path_modified):
+    pic_np = np.array(Image.open(path_init).convert('RGB').resize((224, 224)))
+    numpy_pred_pic = np.array(Image.open(path_modified).convert('RGB'))
+
+    grad_img_norm = np.linalg.norm(pic_np.astype(np.int32) - numpy_pred_pic.astype(np.int32), axis=2)
+    grad_img_norm /= np.max(grad_img_norm)
+    cmap = plt.cm.jet  
+    grad_img_gray = cmap(grad_img_norm)[:, :, :3] 
+
+    fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+
+    axs[0].imshow(pic_np)
+    axs[0].set_title('Initial Image')
+    axs[0].axis('off')
+
+    axs[1].imshow(numpy_pred_pic)
+    axs[1].set_title('Modified Image')
+    axs[1].axis('off')
+
+    axs[2].imshow(grad_img_gray)
+    axs[2].set_title('Gradient Image')
+    axs[2].axis('off')
+
+    plt.show()
