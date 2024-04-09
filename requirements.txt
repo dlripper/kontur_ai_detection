@@ -3,6 +3,7 @@ scikit-learn
 numpy
 pandas
 matplotlib
+seaborn
 wandb
 tqdm
 opencv_python

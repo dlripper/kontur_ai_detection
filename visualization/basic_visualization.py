@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
 import torchvision.transforms as transforms
 from PIL import Image
@@ -99,4 +100,21 @@ def show_difference_predefined(path_init, path_modified):
     axs[2].set_title('Gradient Image')
     axs[2].axis('off')
 
+    plt.show()
+
+
+def show_attack_results(buf):
+    buf.reset_index(inplace=True)
+    plt.figure(figsize=(4, 4))
+    sns.barplot(data=buf, x="addition", y="input_psnr", color='blue')
+    plt.title('PSNR of input and modified input depending on allowed addition')
+    plt.ylabel("psnr")
+    plt.show()
+
+    plt.figure(figsize=(4, 4))
+    sns.barplot(data=buf, x="addition", y="original_pred", color='red', alpha=0.3, label="original_pred")
+    sns.barplot(data=buf, x="addition", y="modified_pred", color='blue', alpha=0.3, label="modified_pred")
+    plt.title('Average prediction accuracy depending on the size of the addition')
+    plt.ylabel("accuracy")
+    plt.legend()
     plt.show()
