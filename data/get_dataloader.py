@@ -59,6 +59,8 @@ test_transform = transforms.Compose([
 def get_train_test_dataloader(additional_train_data, included_formats=["png", "jpeg", "jpg"], train_transforms=["crop"], batch_size=48, test_rate=0.2, random_state=42):
     df = get_recovered(csv_name="train.csv", formats=included_formats)
     df_train, df_test = train_test_split(df, test_size=test_rate, random_state=random_state)
+    df_train.reset_index(drop=True, inplace=True)
+    df_test.reset_index(drop=True, inplace=True)
     df_train.id = "data/generated-or-not/images/" + df_train.id
     
     for df_additional in additional_train_data:
@@ -71,10 +73,10 @@ def get_train_test_dataloader(additional_train_data, included_formats=["png", "j
     train_transform = transforms.Compose(transform_list)
 
     train_subset = CustomDataset(df=df_train, root_dir='.', transform=train_transform)
-    train_dataloader = DataLoader(train_subset, batch_size=48, shuffle=True)
+    train_dataloader = DataLoader(train_subset, batch_size=batch_size, shuffle=True)
 
     test_subset = CustomDataset(df=df_test, root_dir='data/generated-or-not/images', transform=test_transform)
-    test_dataloader = DataLoader(test_subset, batch_size=48, shuffle=False)
+    test_dataloader = DataLoader(test_subset, batch_size=batch_size, shuffle=False)
 
     return train_dataloader, test_dataloader
     
