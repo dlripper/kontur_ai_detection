@@ -5,6 +5,9 @@ import wandb
 from tqdm import tqdm
 
 
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
+
 def loss_calc(loss_function, outputs, labels):
     if isinstance(loss_function, torch.nn.modules.loss.CrossEntropyLoss):
          return loss_function(outputs, labels) 
@@ -25,7 +28,6 @@ def predicted_calc(loss_function, outputs):
 
 
 def train_model(model, optimizer, loss_function, train_dataloader, test_dataloader, num_epochs, wandb_specs=None):
-    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     model.to(device)
     if wandb_specs is not None:
         wandb.login()

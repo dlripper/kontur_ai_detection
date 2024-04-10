@@ -1,7 +1,9 @@
 from __future__ import print_function
 import os
+import subprocess
 import glob
 import argparse
+import pandas as pd
 import torch
 import torch.backends.cudnn as cudnn
 import numpy as np
@@ -84,7 +86,8 @@ if __name__ == '__main__':
     resize = 1
 
 
-    file_paths = glob.glob(args.image_path + '/**/*', recursive=True)
+    file_paths = "data/generated-or-not/images" + np.array(os.listdir("data/generated-or-not/images"))
+    matching = pd.DataFrame(columns=["modified_image", "orig_image"])
     # testing begin
     for i in range(len(file_paths)):
         if i % 50 == 0:
@@ -162,7 +165,12 @@ if __name__ == '__main__':
                 # roi_resized = cv2.resize(roi, (224, 224))
                 print(roi.shape)
                 if roi.shape[0] > 0 and roi.shape[1] > 0:
-                    cv2.imwrite(f'data/generated-or-not/face_images/{image_name}_{j}.jpg', roi)
+                    if not os.path.exists("data/generated-or-not-faces"):
+                        subprocess.run(["mkdir", "data/generated-or-not-faces"])
+                        subprocess.run(["mkdir", "data/generated-or-not-faces/images_initial"])
+                    new_name = f"{image_name}_{j}.png"
+                    cv2.imwrite(f'data/generated-or-not-faces/images_initial/{new_name}', roi)
+                    matching.loc[len(matching)] = {"modified_image": new_name, "orig_image": file_paths[i]}
                 cv2.rectangle(img_raw, (b[0], b[1]), (b[2], b[3]), (0, 0, 255), 2)
 
                 cx = b[0]
@@ -178,5 +186,8 @@ if __name__ == '__main__':
                 cv2.circle(img_raw, (b[13], b[14]), 1, (255, 0, 0), 4)
             # save image
 
-            name = "predict.jpg"
-            cv2.imwrite(name, img_raw)
+            if not os.path.exists("data/generated-or-not-faces/detected_images"):
+                subprocess.run(["mkdir", "data/generated-or-not-faces/detected_images"])
+            cv2.imwrite(f'data/generated-or-not-faces/detected_images/{image_name}.png', img_raw)
+    
+    matching.to_csv("data/generated-or-not-faces/matching.csv", index=False)

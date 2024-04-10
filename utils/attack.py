@@ -1,10 +1,12 @@
 import os
-import torch
 import copy
 import numpy as np
 import pandas as pd
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.utils.data import DataLoader
+from torch import Tensor
 
 from tqdm import tqdm
 from PIL import Image
@@ -16,20 +18,42 @@ mean = torch.tensor([0.485, 0.456, 0.406]).unsqueeze(1).unsqueeze(2).to(device)
 std = torch.tensor([0.229, 0.224, 0.225]).unsqueeze(1).unsqueeze(2).to(device)
 
 
-def denormalize_tensor(image_input_tensor):
+def denormalize_tensor(image_input_tensor: Tensor, mean: Tensor, std: Tensor) -> Tensor:
+    """
+    Denormalize a tensor representing an image.
+
+    Args:
+        image_input_tensor (Tensor): Normalized image tensor.
+        mean (Tensor): Mean value used for normalization.
+        std (Tensor): Standard deviation value used for normalization.
+
+    Returns:
+        Tensor: Denormalized image tensor.
+    """
     denormalized_tensor = image_input_tensor.clone()  
     denormalized_tensor *= std
     denormalized_tensor += mean    
     return denormalized_tensor
 
 
-def psnr_loss(predicted, target, max_pixel=1.0):
-    mse = F.mse_loss(predicted, target)
-    psnr = 20 * torch.log10(max_pixel / torch.sqrt(mse))
+def psnr_loss(predicted_image: Tensor, target_image: Tensor, max_pixel_value: float = 1.0) -> Tensor:
+    """
+    Compute the Peak Signal-to-Noise Ratio (PSNR) between two images.
+
+    Args:
+        predicted_image (Tensor): Predicted image.
+        target_image (Tensor): Target image (ground truth).
+        max_pixel_value (float, optional): Maximum pixel value in the image (default is 1.0).
+
+    Returns:
+        Tensor: PSNR value.
+    """
+    mse = F.mse_loss(predicted_image, target_image)
+    psnr = 20 * torch.log10(max_pixel_value / torch.sqrt(mse))
     return psnr
 
 
-def single_attack(model, dataloader, attack_type):
+def single_attack(model, dataloader, attack_type) -> None:
     model.to(device)
     # model.train()
     columns = ['image_modified', 'input_psnr', 'original_pred', 'modified_pred', 'addition']
@@ -94,7 +118,7 @@ def single_attack(model, dataloader, attack_type):
     df.to_csv(f"{dir_path}/report.csv")
 
   
-def universal_attack(model, dataloader, attack_type):
+def universal_attack(model, dataloader, attack_type) -> None:
     model.to(device)
     columns = ['image_modified', 'input_psnr', 'original_pred', 'modified_pred', 'addition']
     df = pd.DataFrame(columns=columns)
@@ -163,7 +187,23 @@ def universal_attack(model, dataloader, attack_type):
     df.to_csv(f"{dir_path}/report.csv")
             
          
-def get_attacked(model, dataloader, attack_type):
+def get_attacked(model: torch.nn.Module, dataloader: DataLoader, attack_type: str) -> None:
+    """
+    Apply adversarial attacks to a model using the specified attack type.
+
+    Args:
+        model (torch.nn.Module): The model to be attacked.
+        dataloader (DataLoader): DataLoader containing the dataset to be used for the attack.
+        attack_type (str): The type of adversarial attack to apply. Supported types:
+            - "ifgsm": Iterative Fast Gradient Sign Method (FGSM) attack.
+            - "opt_uap": Universal Adversarial Perturbations (UAP) attack.
+
+    Returns:
+        None
+
+    Raises:
+        NotImplementedError: If the specified attack_type is not implemented.
+    """
     if attack_type == "ifgsm":
         return single_attack(model, dataloader, attack_type)
     elif attack_type == "opt_uap":

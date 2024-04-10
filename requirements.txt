@@ -6,7 +6,7 @@ matplotlib
 seaborn
 wandb
 tqdm
-opencv_python
+opencv-python
 Pillow
 invisible-watermark
 diffusers==0.27.2

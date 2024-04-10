@@ -56,12 +56,18 @@ test_transform = transforms.Compose([
 ])
 
 
-def get_train_test_dataloader(additional_train_data, included_formats=["png", "jpeg", "jpg"], train_transforms=["crop"], batch_size=48, test_rate=0.2, random_state=42):
-    df = get_recovered(csv_name="train.csv", formats=included_formats)
-    df_train, df_test = train_test_split(df, test_size=test_rate, random_state=random_state)
+def get_train_test_dataloader(additional_train_data, included_formats=["png", "jpeg", "jpg"], train_transforms=["crop"], batch_size=48, test_rate=0.2, random_state=42, path="data/generated-or-not"):
+    df = get_recovered(csv_name="train.csv", formats=included_formats, path=path)
+    if path == "data/generated-or-not-faces":
+        df_orig = get_recovered(csv_name="train.csv", formats=included_formats)
+        df_train_orig, df_test_orig = train_test_split(df_orig, test_size=test_rate, random_state=random_state)
+        df_train = df[df["orig_id"].isin(df_train_orig.id)]
+        df_test = df[df["orig_id"].isin(df_test_orig.id)]
+    else:
+        df_train, df_test = train_test_split(df, test_size=test_rate, random_state=random_state)
     df_train.reset_index(drop=True, inplace=True)
     df_test.reset_index(drop=True, inplace=True)
-    df_train.id = "data/generated-or-not/images/" + df_train.id
+    df_train.id = path + df_train.id
     
     for df_additional in additional_train_data:
         df_train = concatenated_df = pd.concat([df_train, df_additional], ignore_index=True)
@@ -75,12 +81,23 @@ def get_train_test_dataloader(additional_train_data, included_formats=["png", "j
     train_subset = CustomDataset(df=df_train, root_dir='.', transform=train_transform)
     train_dataloader = DataLoader(train_subset, batch_size=batch_size, shuffle=True)
 
-    test_subset = CustomDataset(df=df_test, root_dir='data/generated-or-not/images', transform=test_transform)
+    test_subset = CustomDataset(df=df_test, root_dir=path, transform=test_transform)
     test_dataloader = DataLoader(test_subset, batch_size=batch_size, shuffle=False)
 
     return train_dataloader, test_dataloader
     
 
 
-def get_inf_dataloder():
-    pass
+def get_inf_dataloder(included_formats=["png", "jpeg", "jpg"], batch_size=48, path="data/generated-or-not/images", single_image_path=None):
+    if os.path.exists(f"{path}/test.csv"):
+        df = get_recovered(csv_name="test.csv", formats=included_formats)
+        if path == "data/generated-or-not-faces":
+            df_universal = get_recovered(csv_name="train.csv", formats=included_formats, path=path)
+            df = df_universal[df.orig_id.isin(df.id)]
+    else:
+        df = pd.DataFrame({"id": [single_image_path]})
+        path = "."
+    inf_subset = InfDataset(df=df, root_dir=path, transform=test_transform)
+    inf_dataloader = DataLoader(inf_subset, batch_size=32, shuffle=False)
+
+    return inf_dataloader, df
