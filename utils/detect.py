@@ -17,7 +17,7 @@ import time
 
 parser = argparse.ArgumentParser(description='Retinaface')
 parser.add_argument('--image_path')
-parser.add_argument('-m', '--trained_model', default='./weights/Resnet50_Final.pth',
+parser.add_argument('-m', '--trained_model', default='weights/Resnet50_Final.pth',
                     type=str, help='Trained state_dict file path to open')
 parser.add_argument('--network', default='resnet50', help='Backbone network mobile0.25 or resnet50')
 parser.add_argument('--cpu', action="store_true", default=False, help='Use cpu inference')
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     resize = 1
 
 
-    file_paths = "data/generated-or-not/images" + np.array(os.listdir("data/generated-or-not/images"))
+    file_paths = ["data/generated-or-not/images/" + el for el in os.listdir("data/generated-or-not/images")]
     matching = pd.DataFrame(columns=["modified_image", "orig_image"])
     # testing begin
     for i in range(len(file_paths)):

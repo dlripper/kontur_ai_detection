@@ -1,5 +1,6 @@
 python==3.11.7
 scikit-learn
+scipy
 numpy
 pandas
 matplotlib
