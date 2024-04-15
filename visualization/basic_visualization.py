@@ -50,14 +50,20 @@ img_transform = transforms.Compose([
 
 
 def show_difference(path_init, path_modified, addition=None):
-    pic_np = Image.open(path_init).convert('RGB')
-    pic_np = (np.array(img_transform(pic_np).permute(1, 2, 0).clamp_(0, 1)) * 255).round().astype(np.int32)
-    numpy_pred_pic = np.array(Image.open(path_modified).convert('RGB'))
+    if addition is not None:
+        pic_np = Image.open(path_init).convert('RGB')
+        pic_np = (np.array(img_transform(pic_np).permute(1, 2, 0).clamp_(0, 1)) * 255).round().astype(np.int32)
+        numpy_pred_pic = np.array(Image.open(path_modified).convert('RGB'))
+    else:
+        pic_np = np.array(Image.open(path_init).convert('RGB'))
+        numpy_pred_pic = np.array(Image.open(path_modified).convert('RGB'))
+
 
     grad_img_norm = np.linalg.norm(pic_np - numpy_pred_pic.astype(np.int32), axis=2)
     grad_img_norm /= (np.max(grad_img_norm) if np.max(grad_img_norm) != 0 else 1)
     cmap = plt.cm.jet  
     grad_img_gray = cmap(grad_img_norm)[:, :, :3] 
+    # diff_img = np.clip(pic_np.astype(np.int32) - numpy_pred_pic.astype(np.int32) + 127, 0, 255)
 
     fig, axs = plt.subplots(1, 3, figsize=(15, 5))
 
@@ -73,7 +79,8 @@ def show_difference(path_init, path_modified, addition=None):
     axs[2].set_title('Gradient Image')
     axs[2].axis('off')
 
-    plt.suptitle(f'Comparison of Images for addition {addition}', fontsize=16)
+    if addition is not None:
+        plt.suptitle(f'Comparison of Images for addition {addition}', fontsize=16)
     plt.show()
 
 
@@ -81,10 +88,11 @@ def show_difference_predefined(path_init, path_modified):
     pic_np = np.array(Image.open(path_init).convert('RGB').resize((224, 224)))
     numpy_pred_pic = np.array(Image.open(path_modified).convert('RGB'))
 
-    grad_img_norm = np.linalg.norm(pic_np.astype(np.int32) - numpy_pred_pic.astype(np.int32), axis=2)
-    grad_img_norm /= np.max(grad_img_norm)
-    cmap = plt.cm.jet  
-    grad_img_gray = cmap(grad_img_norm)[:, :, :3] 
+    # grad_img_norm = np.linalg.norm(pic_np.astype(np.int32) - numpy_pred_pic.astype(np.int32), axis=2)
+    # grad_img_norm /= np.max(grad_img_norm)
+    # cmap = plt.cm.jet  
+    # grad_img_gray = cmap(grad_img_norm)[:, :, :3] 
+    diff_img = pic_np.astype(np.int32) - numpy_pred_pic.astype(np.int32) + 127
 
     fig, axs = plt.subplots(1, 3, figsize=(15, 5))
 
@@ -96,8 +104,8 @@ def show_difference_predefined(path_init, path_modified):
     axs[1].set_title('Modified Image')
     axs[1].axis('off')
 
-    axs[2].imshow(grad_img_gray)
-    axs[2].set_title('Gradient Image')
+    axs[2].imshow(diff_img)
+    axs[2].set_title('Difference Image')
     axs[2].axis('off')
 
     plt.show()

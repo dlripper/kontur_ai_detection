@@ -57,8 +57,8 @@ def get_retina_inf_dataset() -> None:
 
 
 def get_faces_predicts(model, face_model, csv_output="utils/predict.csv"):
-    get_inference(model, "utils/main_model_predict.csv")
-    get_inference(face_model, "utils/face_model_predict.csv", "data/generated-or-not-faces") ##<---> need to solve it somehow!
+    get_inference([model], "utils/main_model_predict.csv")
+    get_inference([face_model], "utils/face_model_predict.csv", "data/generated-or-not-faces") ##<---> need to solve it somehow!
 
     main_model_predict = pd.read_csv("utils/main_model_predict.csv")
     face_model_predict = pd.read_csv("utils/face_model_predict.csv")

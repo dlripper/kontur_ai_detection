@@ -25,6 +25,12 @@ test_transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
+inf_transform = transforms.Compose([
+    transforms.Resize((256, 256)),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
 
 
 class CustomDataset(Dataset):
@@ -90,12 +96,13 @@ def get_train_test_dataloader(additional_train_data, included_formats=["png", "j
 
 
 def get_inf_dataloder(included_formats=["png", "jpeg", "jpg", "webp"], batch_size=48, path="data/generated-or-not", single_image_path=None):
-    if os.path.exists(f"{path}/train.csv"):
+    if not single_image_path:
         df = get_recovered(csv_name="test.csv", formats=included_formats, path=path)
+        path = path + "/images"
     else:
         df = pd.DataFrame({"id": [single_image_path]})
         path = "."
-    inf_subset = InfDataset(df=df, root_dir=path + "/images", transform=test_transform)
+    inf_subset = InfDataset(df=df, root_dir=path, transform=inf_transform)
     inf_dataloader = DataLoader(inf_subset, batch_size=batch_size, shuffle=False)
 
     return inf_dataloader, df

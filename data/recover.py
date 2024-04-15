@@ -53,5 +53,6 @@ def get_recovered(csv_name: str, formats: Optional[list] = None, path: Optional[
     df["format"] = [el.split(".")[1] for el in df.id]
     if formats is not None:
         df = df[df.format.isin(formats)]
+    df.reset_index(drop=True, inplace=True)
 
     return df
