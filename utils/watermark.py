@@ -1,6 +1,11 @@
+import os
+import subprocess
+import visualization
+import matplotlib.pyplot as plt
+import sklearn.metrics
 import cv2
-import numpy as np
-import pandas as pd
+import torch
+import torch.nn as nn
 from imwatermark import WatermarkEncoder, WatermarkDecoder
 
 
@@ -22,6 +27,7 @@ def add_watermark():
 def get_added_watermarks():
     add_watermark()
     model = models.resnet50()
+    num_ftrs = model.fc.in_features
     model.fc = nn.Linear(num_ftrs, 1)
     model.load_state_dict(torch.load("utils/jpeg_1.pth")["model_state_dict"])
     get_inference([model], "utils/watermark_predict.csv", path="data/watermark_generated")
@@ -29,6 +35,6 @@ def get_added_watermarks():
     ground_truth = pd.read_csv("final_predict.csv")
 
     #visualization
-    print("Log Loss on Watermark-added data is", log_loss((ground_truth.target >= 0.5).astype(np.int32), df_inf.target, labels=[0,1]))
+    print("Log Loss on Watermark-added data is", sklearn.metrics.log_loss((ground_truth.target >= 0.5).astype(np.int32), df_inf.target, labels=[0,1]))
     print("You can see the following example below:")
     visualization.show_difference("data/generated-or-not/images/HXKXONqX6P.png", "data/watermark_generated/HXKXONqX6P.png")

@@ -2,8 +2,10 @@ import os
 import subprocess
 import visualization
 import matplotlib.pyplot as plt
-import sklearn.metrics.log_loss as log_loss
+import sklearn.metrics
 import cv2
+import torch
+import torch.nn as nn
 from diffusers import AutoencoderKL
 from PIL import Image
 from data.recover import get_recovered
@@ -35,12 +37,13 @@ def create_vae_variation():
 def get_vae_variations():
     create_vae_variation()
     model = models.resnet50()
+    num_ftrs = model.fc.in_features
     model.fc = nn.Linear(num_ftrs, 1)
     model.load_state_dict(torch.load("utils/png_1.pth")["model_state_dict"])
     get_inference([model], "utils/vae_predict.csv", path="data/vae_generated")
     df_inf = pd.read_csv("utils/vae_predict.csv")
 
     #visualization
-    print("Log Loss on VAE generated data is", log_loss(np.ones_like(df_inf.target), df_inf.target, labels=[0,1]))
+    print("Log Loss on VAE generated data is", sklearn.metrics.log_loss(np.ones_like(df_inf.target), df_inf.target, labels=[0,1]))
     print("You can see the following example below:")
     visualization.show_difference("data/generated-or-not/images/HXKXONqX6P.png", "data/vae_generated/HXKXONqX6P.png")

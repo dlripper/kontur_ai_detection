@@ -7,3 +7,4 @@ from .get_genimage import get_genimage
 from .vae import get_vae_variations
 from .watermark import get_added_watermarks
 from .maniqa import visualise_maniqa_scores
+from .grad_visualization import get_model_visualisation

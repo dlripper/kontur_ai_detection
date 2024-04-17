@@ -7,9 +7,10 @@ import pandas as pd
 from data.recover import get_recovered
 
 def visualise_maniqa_scores():
-    subprocess.run(["git clone https://github.com/IIGROUP/MANIQA.git utils/"])
-    subprocess.run(["cp utils/predict.py utils/MANIQA/"])
-    subprocess.run(["python utils/MANIQA/predict.py"])
+    subprocess.run(["git", "clone", "https://github.com/IIGROUP/MANIQA.git utils/"])
+    #also here need to upload weights to dir utils/MANIQA/weights of this repo manually
+    subprocess.run(["cp", "utils/predict.py", "utils/MANIQA/"])
+    subprocess.run(["python", "utils/MANIQA/predict.py"])
 
     maniqa = pd.read_csv("maniqa.csv")
     df = get_recovered("train.csv")
