@@ -75,7 +75,7 @@ if __name__ == '__main__':
     # config file
     config = Config({
         # image path
-        "image_path": "../generated-or-not/images/fPowDyaVsI.webp",
+        # "image_path": "../generated-or-not/images/fPowDyaVsI.webp",
 
         # valid times
         "num_crops": 20,
@@ -93,7 +93,7 @@ if __name__ == '__main__':
         "scale": 0.8,
 
         # checkpoint path
-        "ckpt_path": "./ckpt_koniq10k.pt",
+        "ckpt_path": "utils/MANIQA/ckpt_koniq10k.pt",
     })
     
     # data load
