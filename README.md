@@ -12,8 +12,6 @@
 
 ### Загрузите веса, если хотите инференс [[Model Weights]](https://drive.google.com/drive/folders/1HrWvw5s-9Ejj5KAMXaPgbQLIoNRQGred?usp=share_link) 
 
-- `bash weights/download_weights.sh`
-
 
 ## (2) Быстрый Инференс
 
