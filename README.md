@@ -10,8 +10,7 @@
 ### Зависимости, гарантирующие, что все получится!
 - `pip install -r requirements.txt`
 
-### Загрузите веса, если хотите инференс/тест
-- `bash weights/download_weights.sh`
+### Загрузите веса, если хотите инференс [[Model Weights]](https://drive.google.com/drive/folders/1HrWvw5s-9Ejj5KAMXaPgbQLIoNRQGred?usp=share_link) 
 
 
 ## (2) Быстрый Инференс
