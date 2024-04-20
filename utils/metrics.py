@@ -7,7 +7,10 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import seaborn as sns
 from tqdm import tqdm
+from sklearn.manifold import TSNE
+from sklearn.preprocessing import StandardScaler
 from scipy.linalg import sqrtm
 from data.recover import get_recovered
 from data.get_dataloader import CustomDataset
@@ -35,7 +38,7 @@ model_types = ['_original', 'imagenet_ai_0419_biggan', 'imagenet_ai_0419_vqdm',
 
 
 def frechet_inception_distance():
-    #step 1: getting compact representations
+    step 1: getting compact representations
     resnet50 = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
     resnet50.eval()
     feature_extractor = torch.nn.Sequential(*list(resnet50.children())[:-1])
@@ -67,13 +70,7 @@ def frechet_inception_distance():
             dist_2 = np.load(f"utils/{model_types[j].split('_')[-1]}_fid.npy") #utils
             pairwise_distances[i, j], pairwise_distances[j, i] = pair_fid(dist_1, dist_2)
 
-
-    #step 3: visualisation
-    origin_of_data = [model_type.split('_')[-1] for model_type in model_types]
-    sns.heatmap(pairwise_distances, cmap="viridis", annot=True, fmt=".2f", cbar=True,
-            xticklabels=origin_of_data, yticklabels=origin_of_data)
-    plt.title("Frechet Inception Distance Matrix")
-    plt.show()
+    return pairwise_distances
 
 
 def mean_gaussian_kernel(x, y, sigma=1.0):
@@ -114,4 +111,56 @@ def maximum_mean_discrepancy(sigma=1.0):
     sns.heatmap(pairwise_distances, cmap="viridis", annot=True, fmt=".2f", cbar=True,
             xticklabels=origin_of_data, yticklabels=origin_of_data)
     plt.title("Maximum Mean Discrepancy Matrix")
+    plt.show()
+
+def tsne_compression():
+    concatenated_labels = []
+    for i, model_type in enumerate(model_types):
+        dist_1 = np.load(f"utils/{model_type.split('_')[-1]}_fid.npy") #utils
+        concatenated_labels += [model_type.split("_")[-1]] *  dist_1.shape[0]
+        if i == 0:
+                concatenated_data = dist_1
+        else:
+                concatenated_data = np.concatenate([concatenated_data, dist_1], axis=0)
+    unique_labels = np.unique(concatenated_labels)
+
+    tsne = TSNE(n_components=2)
+    tsne_data = tsne.fit_transform(concatenated_data)
+    scaler = StandardScaler()
+    tsne_data_normalized = scaler.fit_transform(tsne_data)
+
+    return tsne_data_normalized, concatenated_labels, unique_labels
+
+def tsne_comparison():
+    pass
+
+def get_density_interpretation():
+    fid_pairwise_distances = frechet_inception_distance()
+    tsne_data_normalized, concatenated_labels, unique_labels = tsne_compression()
+
+    #step 3: visualisation
+    fig, axs = plt.subplots(1, 2, figsize=(15, 6))
+
+    #axs_0
+    colors = plt.cm.tab10(np.linspace(0, 1, len(unique_labels)))
+    for i, label in enumerate(unique_labels):
+        if label == "original":
+            axs[0].scatter(tsne_data_normalized[np.array(concatenated_labels) == label, 0], 
+                        tsne_data_normalized[np.array(concatenated_labels) == label, 1], 
+                        color=colors[i], label=label, alpha=0.9)
+        else:
+            axs[0].scatter(tsne_data_normalized[np.array(concatenated_labels) == label, 0], 
+                        tsne_data_normalized[np.array(concatenated_labels) == label, 1], 
+                        color=colors[i], label=label, alpha=0.15)
+    axs[0].set_xlabel('t-SNE Component 1')
+    axs[0].set_ylabel('t-SNE Component 2')
+    axs[0].set_title('t-SNE Visualization')
+    axs[0].legend()
+
+    #axs_1
+    origin_of_data = [model_type.split('_')[-1] for model_type in model_types]
+    sns.heatmap(fid_pairwise_distances, cmap="viridis", annot=True, fmt=".2f", cbar=True,
+            xticklabels=origin_of_data, yticklabels=origin_of_data)
+    axs[1].set_title("Frechet Inception Distance Matrix")
+
     plt.show()
