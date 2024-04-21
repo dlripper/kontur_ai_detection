@@ -202,7 +202,7 @@ def get_single_image_ensemble(single_image_path: str) -> float:
     for i in range(1, 5):
         model = models.resnet50()
         model.fc = nn.Linear(2048, 1)
-        model.load_state_dict(torch.load(f"../{model_type}_{i}.pth")["model_state_dict"])
+        model.load_state_dict(torch.load(f"weights/{model_type}_{i}.pth")["model_state_dict"])
         predicts.append(get_single_image_inference(model, single_image_path))
 
     pr_1, pr_2, pr_3, pr_4 = predicts[0], predicts[1], predicts[2], predicts[3]

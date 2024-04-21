@@ -32,7 +32,7 @@ def main():
         model_type = "png" if format == "png" else "jpeg"
         model = models.resnet50()
         model.fc = nn.Linear(2048, 1)
-        model.load_state_dict(torch.load(f"../{model_type}_1.pth")["model_state_dict"])
+        model.load_state_dict(torch.load(f"weights/{model_type}_1.pth")["model_state_dict"])
         predict = get_single_image_inference(model, args.img_path)
 
     print(f"Prob of being fake is {predict:.3f}")
