@@ -41,6 +41,15 @@ def train_model(model, optimizer, loss_function, train_dataloader, test_dataload
 
     iter_num = 0
     for epoch in range(num_epochs):
+        if epoch == 0:
+            #create .pth objects
+            for i in range(4):
+                torch.save({
+                                    'epoch': epoch,
+                                    'model_state_dict': model.state_dict(),
+                                    'optimizer_state_dict': optimizer.state_dict(),
+                                }, f"weights/sota_{i}.pth")
+                                
         torch.save({
                         'epoch': epoch,
                         'model_state_dict': model.state_dict(),

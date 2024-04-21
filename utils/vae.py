@@ -2,6 +2,8 @@ import os
 import subprocess
 import visualization
 import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
 import sklearn.metrics
 import cv2
 import torch

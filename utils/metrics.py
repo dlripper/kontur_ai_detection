@@ -38,7 +38,7 @@ model_types = ['_original', 'imagenet_ai_0419_biggan', 'imagenet_ai_0419_vqdm',
 
 
 def frechet_inception_distance():
-    step 1: getting compact representations
+    #step 1: getting compact representations
     resnet50 = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
     resnet50.eval()
     feature_extractor = torch.nn.Sequential(*list(resnet50.children())[:-1])

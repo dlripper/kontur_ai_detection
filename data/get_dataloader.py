@@ -9,6 +9,7 @@ from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split
 
 from data.recover import get_recovered
+from data.patchcraft_transform import generate_patches
 
 
 transform_dict = {
@@ -63,7 +64,18 @@ class InfDataset(CustomDataset):
         return image, torch.tensor(idx)
 
 
-def get_train_test_dataloader(additional_train_data, included_formats=["png", "jpeg", "jpg"], train_transforms=["crop"], batch_size=48, test_rate=0.2, random_state=42, path="data/generated-or-not"):
+class PatchDataset(CustomDataset):
+    def __getitem__(self, idx):
+        img_name = os.path.join(self.root_dir, self.annotations.id[idx])
+        image = Image.open(img_name).convert('RGB')
+        label = torch.tensor(int(self.annotations.target[idx]))
+
+        poor, rich = generate_patches(image.unsqueeze(0))
+
+        return (poor.squeeze(0), rich.squeeze(0)), label, torch.tensor(idx)
+
+
+def get_train_test_dataloader(additional_train_data, included_formats=["png", "jpeg", "jpg"], train_transforms=["crop"], batch_size=48, test_rate=0.2, random_state=42, path="data/generated-or-not", patchcraft=False):
     df = get_recovered(csv_name="train.csv", formats=included_formats, path=path)
     if path == "data/generated-or-not-faces":
         df_orig = get_recovered(csv_name="train.csv", formats=included_formats)
@@ -85,10 +97,10 @@ def get_train_test_dataloader(additional_train_data, included_formats=["png", "j
     transform_list += [transforms.ToTensor(), transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]
     train_transform = transforms.Compose(transform_list)
 
-    train_subset = CustomDataset(df=df_train, root_dir='.', transform=train_transform)
+    train_subset = CustomDataset(df=df_train, root_dir='.', transform=train_transform) if not patchcraft else PatchDataset(df=df_train, root_dir='.', transform=train_transform)
     train_dataloader = DataLoader(train_subset, batch_size=batch_size, shuffle=True)
 
-    test_subset = CustomDataset(df=df_test, root_dir=path + "/images", transform=test_transform)
+    test_subset = CustomDataset(df=df_test, root_dir=path + "/images", transform=test_transform) if not patchcraft else PatchDataset(df=df_test, root_dir=path + "/images", transform=test_transform)
     test_dataloader = DataLoader(test_subset, batch_size=batch_size, shuffle=False)
 
     return train_dataloader, test_dataloader

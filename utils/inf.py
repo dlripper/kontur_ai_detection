@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
+import torch.nn as nn
+import torchvision.models as models
 from tqdm import tqdm
 from PIL import Image
 from data.get_dataloader import get_inf_dataloder, inf_transform
@@ -108,5 +110,32 @@ def get_single_image_inference(model, single_image_path):
             inputs = inputs.to(device)
             outputs = model(inputs).reshape(-1)
             predicts = outputs.data.sigmoid()
-           
-    return predicts.item()
+    
+    predicts = np.array([predicts.item()])
+    format = single_image_path.split(".")[-1]
+    if format == "jpeg":
+        data = {'id': [single_image_path]}
+        df = pd.DataFrame(data)
+        update_predicts(model, df, predicts)
+
+    return predicts[0]
+
+def get_single_image_ensemble(single_image_path):
+    format = single_image_path.split(".")[-1]
+    model_type = "png" if format == "png" else "jpeg"
+    predicts = []
+    for i in range(1, 5):
+        model = models.resnet50()
+        model.fc = nn.Linear(2048, 1)
+        model.load_state_dict(torch.load(f"../{model_type}_{i}.pth")["model_state_dict"])
+        predicts.append(get_single_image_inference(model, single_image_path))
+
+    pr_1, pr_2, pr_3, pr_4 = predicts[0], predicts[1], predicts[2], predicts[3]
+    sorted = np.sort([pr_1, pr_2, pr_3, pr_4])
+
+    if sorted[2] - sorted[0] < sorted[3] -  sorted[1]:
+        ensemble_predict = np.mean(sorted[:2])
+    else:
+        ensemble_predict = np.mean(sorted[2:])
+
+    return ensemble_predict
