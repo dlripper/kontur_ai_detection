@@ -4,7 +4,19 @@ import pandas as pd
 
 from data.recover import get_recovered
 
-def visualise_maniqa_scores(df):
+def visualise_maniqa_scores(df: pd.DataFrame) -> None:
+    """
+    Visualize the distribution of Maniqa scores based on different image formats.
+    
+    This function clones a GitHub repository for MANIQA, runs a prediction script,
+    and plots histograms to visualize the distribution of Maniqa scores for various formats.
+
+    Args:
+        df (pd.DataFrame): The DataFrame containing image information, including 'id' and 'format'.
+    
+    Returns:
+        None: This function displays a plot and does not return a value.
+    """
     subprocess.run(["git", "clone", "https://github.com/IIGROUP/MANIQA.git utils/"])
     #also here need to upload weights to dir utils/MANIQA/weights of this repo manually
     subprocess.run(["cp", "utils/predict.py", "utils/MANIQA/"]) 

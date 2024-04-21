@@ -11,7 +11,30 @@ import torch.nn as nn
 from imwatermark import WatermarkEncoder, WatermarkDecoder
 
 
-def add_watermark():
+def add_watermark() -> None:
+    """
+    Add watermarks to existing images and save them to a specified directory.
+
+    This function does the following steps:
+    1. Loads the WatermarkEncoder model to embed watermarks into images.
+    2. Creates directories to store watermark-embedded images.
+    3. Copies a CSV file to the new directory for reference.
+    4. Iterates over a set of JPEG images and embeds a predefined watermark.
+    5. Saves the watermark-embedded images in the specified directory with a specified quality.
+
+    The watermarked images can be used for testing or validation purposes.
+
+    Parameters:
+    - None
+
+    Returns:
+    - None: The function performs operations but does not return a value.
+
+    Notes:
+    - Ensure the WatermarkEncoder model is correctly imported and initialized.
+    - The function creates new directories for storing watermarked images.
+    - The function expects a list of images to process and embed watermarks.
+    """
     WatermarkEncoder.loadModel()
     os.mkdir("data/watermark_generated")
     os.mkdir("data/watermark_generated/images")
@@ -26,7 +49,28 @@ def add_watermark():
         bgr_encoded = encoder.encode(bgr, 'rivaGan')
         Image.fromarray(bgr_encoded).save(f"data/watermark_generated/images/{file_name}", quality=80)
 
-def get_added_watermarks():
+
+def get_added_watermarks() -> None:
+    """
+    Add watermarks to existing images and evaluate them with a pretrained model.
+
+    This function does the following steps:
+    1. Calls `add_watermark` to embed watermarks into existing images.
+    2. Loads a ResNet-50 model with a modified output layer for inference.
+    3. Conducts inference on the watermarked images and calculates log loss.
+    4. Displays example comparisons between original and watermarked images.
+
+    Parameters:
+    - None
+
+    Returns:
+    - None: This function performs operations but does not return a value.
+
+    Notes:
+    - Ensure the ResNet-50 model with a modified output layer is available for inference.
+    - The function relies on `add_watermark` to create watermarked images.
+    - The results of inference are stored in a CSV file for further analysis.
+    """
     add_watermark()
     model = models.resnet50()
     num_ftrs = model.fc.in_features

@@ -5,11 +5,25 @@ import torch.nn.functional as F
 import torch.nn as nn
 import torchvision.models as models
 from tqdm import tqdm
+from typing import List, Tuple
 from PIL import Image
-from data.get_dataloader import get_inf_dataloder, inf_transform
+from torch.utils.data import DataLoader
+
+from data.get_dataloader import get_inf_dataloader, inf_transform
 
 
-def predicted_calc(outputs):
+def predicted_calc(outputs: torch.Tensor) -> torch.Tensor:
+    """
+    Calculates predicted values from model outputs. Handles binary classification and single-output 
+    cases, applying appropriate activation functions.
+
+    Args:
+        outputs (torch.Tensor): The output tensor from a model, shape can vary depending on 
+                                the task (binary classification, etc.).
+
+    Returns:
+        torch.Tensor: The predicted values, transformed with appropriate activation functions.
+    """
     if outputs.shape[-1] == 2:
         return F.softmax(outputs, dim=1)[:, 1]
     elif outputs.shape[-1] == 1:
@@ -21,7 +35,19 @@ def predicted_calc(outputs):
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 
-def update_predicts(model, df, predict):
+def update_predicts(
+    model: nn.Module, 
+    df: pd.DataFrame, 
+    predict: np.ndarray
+) -> None:
+    """
+    Updates predictions for images with specified dimensions (1024x1024).
+
+    Args:
+        model (nn.Module): The PyTorch model used for inference.
+        df (pd.DataFrame): The dataframe containing image data.
+        predict (np.ndarray): Array where predictions will be stored.
+    """
     height = []
     width = []
     for file_name in df.id:
@@ -52,7 +78,24 @@ def update_predicts(model, df, predict):
     predict[ind] = final_predicts
 
 
-def get_format_predicts(model, inf_dataloader, df, format="jpeg"):
+def get_format_predicts(
+    model: nn.Module,
+    inf_dataloader: DataLoader,
+    df: pd.DataFrame,
+    format: str = "jpeg"
+) -> np.ndarray:
+    """
+    Get predictions for the given DataLoader and update if required based on the specified format.
+    
+    Args:
+        model (nn.Module): The PyTorch model used for inference.
+        inf_dataloader (DataLoader): The DataLoader containing the input data.
+        df (pd.DataFrame): The DataFrame containing additional data information.
+        format (str): The format of the data, defaults to "jpeg".
+    
+    Returns:
+        np.ndarray: Array of predictions.
+    """
     model.to(device)
     model.eval()
     counter = 0
@@ -73,18 +116,30 @@ def get_format_predicts(model, inf_dataloader, df, format="jpeg"):
     return predict
 
 
-def get_inference(models, csv_output, path="data/generated-or-not"):
-    inf_dataloader, df = get_inf_dataloder(path=path)
+def get_inference(
+    models: List[nn.Module], 
+    csv_output: str, 
+    path: str = "data/generated-or-not"
+) -> None:
+    """
+    Get inference results from one or more models, and save the results to a CSV file.
+    
+    Args:
+        models (List[nn.Module]): A list of models to use for inference.
+        csv_output (str): The path to the CSV file where results will be saved.
+        path (str): The path to the dataset, defaults to "data/generated-or-not".
+    """
+    inf_dataloader, df = get_inf_dataloader(path=path)
     if len(models) == 1:
         predict = get_format_predicts(models[0], inf_dataloader, df)
     elif len(models) == 2:
         predict = np.zeros_like(df.id)
         model_jpeg = models[0]
-        inf_dataloader_jpeg, df_jpeg = get_inf_dataloder(included_formats=["webp", "jpeg", "jpg"], path=path)
+        inf_dataloader_jpeg, df_jpeg = get_inf_dataloader(included_formats=["webp", "jpeg", "jpg"], path=path)
         predict[np.where(df.format != "png")[0]] = get_format_predicts(model_jpeg, inf_dataloader_jpeg, df_jpeg)
 
         model_png = models[1]
-        inf_dataloader_png, df_png = get_inf_dataloder(included_formats=["png"], path=path)
+        inf_dataloader_png, df_png = get_inf_dataloader(included_formats=["png"], path=path)
         predict[np.where(df.format == "png")[0]] = get_format_predicts(model_png, inf_dataloader_png, df_png, format="png")
     else:
         raise NotImplementedError("In the current implementation only 2 models were trained good enough:)")
@@ -100,8 +155,18 @@ def get_inference(models, csv_output, path="data/generated-or-not"):
     df_inf.to_csv(csv_output, index=False)
 
 
-def get_single_image_inference(model, single_image_path):
-    inf_dataloader, _ = get_inf_dataloder(single_image_path=single_image_path)
+def get_single_image_inference(model: nn.Module, single_image_path: str) -> float:
+    """
+    Get inference prediction for a single image using a specified model.
+    
+    Args:
+        model (nn.Module): The model to use for inference.
+        single_image_path (str): The path to the single image to be inferred.
+    
+    Returns:
+        float: The prediction result for the single image.
+    """
+    inf_dataloader, _ = get_inf_dataloader(single_image_path=single_image_path)
     model.to(device)
     model.eval()
     
@@ -120,7 +185,17 @@ def get_single_image_inference(model, single_image_path):
 
     return predicts[0]
 
-def get_single_image_ensemble(single_image_path):
+
+def get_single_image_ensemble(single_image_path: str) -> float:
+    """
+    Perform an ensemble inference for a single image using multiple models.
+    
+    Args:
+        single_image_path (str): The path to the single image to be inferred.
+    
+    Returns:
+        float: The ensemble prediction result for the single image.
+    """
     format = single_image_path.split(".")[-1]
     model_type = "png" if format == "png" else "jpeg"
     predicts = []

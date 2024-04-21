@@ -3,7 +3,7 @@ import os
 
 from .recover import get_untyped, get_recovered
 from .get_dataloader import get_train_test_dataloader
-from .get_dataloader import get_inf_dataloder
+from .get_dataloader import get_inf_dataloader
 from .patchcraft_transform import generate_patches
 
 if not os.path.exists("data/generated-or-not"):

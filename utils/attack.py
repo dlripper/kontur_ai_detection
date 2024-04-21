@@ -6,7 +6,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
-from torch import Tensor
 
 from tqdm import tqdm
 from PIL import Image
@@ -14,11 +13,12 @@ from PIL import Image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
 mean = torch.tensor([0.485, 0.456, 0.406]).unsqueeze(1).unsqueeze(2).to(device)
 std = torch.tensor([0.229, 0.224, 0.225]).unsqueeze(1).unsqueeze(2).to(device)
 
 
-def denormalize_tensor(image_input_tensor: Tensor, mean: Tensor, std: Tensor) -> Tensor:
+def denormalize_tensor(image_input_tensor: torch.Tensor, mean: torch.Tensor, std: torch.Tensor) -> torch.Tensor:
     """
     Denormalize a tensor representing an image.
 
@@ -36,7 +36,7 @@ def denormalize_tensor(image_input_tensor: Tensor, mean: Tensor, std: Tensor) ->
     return denormalized_tensor
 
 
-def psnr_loss(predicted_image: Tensor, target_image: Tensor, max_pixel_value: float = 1.0) -> Tensor:
+def psnr_loss(predicted_image: torch.Tensor, target_image: torch.Tensor, max_pixel_value: float = 1.0) -> torch.Tensor:
     """
     Compute the Peak Signal-to-Noise Ratio (PSNR) between two images.
 
@@ -53,9 +53,31 @@ def psnr_loss(predicted_image: Tensor, target_image: Tensor, max_pixel_value: fl
     return psnr
 
 
-def single_attack(model, dataloader, attack_type) -> None:
+def single_attack(model: nn.Module, dataloader: DataLoader, attack_type: str) -> None:
+    """
+    Apply a single attack using Iterative Fast Gradient Sign Method (IFGSM) on the model and save the results.
+
+    The function performs the following steps:
+    1. Sets up a DataFrame for storing attack results.
+    2. Creates necessary directories for saving the modified images.
+    3. Applies IFGSM attacks with varying levels of perturbation (defined by `addition`).
+    4. Calculates predictions on the original and modified images.
+    5. Saves modified images and attack results in the specified directory.
+
+    Args:
+        model (nn.Module): The model to be attacked.
+        dataloader (DataLoader): DataLoader containing the dataset to be used for the attack.
+        attack_type (str): The type of attack being applied (in this case, "ifgsm").
+
+    Returns:
+        None
+
+    Notes:
+    - The attack applies perturbations to input images using gradients from the model's predictions.
+    - Perturbations are applied iteratively based on the `addition` parameter.
+    - Results are saved to CSV and modified images are stored for later analysis.
+    """
     model.to(device)
-    # model.train()
     columns = ['image_modified', 'input_psnr', 'original_pred', 'modified_pred', 'addition']
     df = pd.DataFrame(columns=columns)
     
@@ -118,7 +140,30 @@ def single_attack(model, dataloader, attack_type) -> None:
     df.to_csv(f"{dir_path}/report.csv")
 
   
-def universal_attack(model, dataloader, attack_type) -> None:
+def universal_attack(model: torch.nn.Module, dataloader: DataLoader, attack_type: str) -> None:
+    """
+    Apply a Universal Adversarial Perturbations (UAP) attack on the model and save the results.
+
+    The function performs the following steps:
+    1. Sets up a DataFrame for storing attack results.
+    2. Creates necessary directories for saving the modified images.
+    3. Applies UAP attacks with varying levels of perturbation (`addition`).
+    4. Trains a universal perturbation tensor to apply to the dataset.
+    5. Saves modified images and attack results in the specified directory.
+
+    Args:
+        model (torch.rnn.Module): The model to be attacked.
+        dataloader (DataLoader): DataLoader containing the dataset to be used for the attack.
+        attack_type (str): The type of attack being applied (in this case, "opt_uap").
+
+    Returns:
+        None
+
+    Notes:
+    - The UAP attack involves training a universal perturbation tensor.
+    - Perturbations are applied uniformly across all images based on the `addition` parameter.
+    - Results are saved to CSV and modified images are stored for later analysis.
+    """
     model.to(device)
     columns = ['image_modified', 'input_psnr', 'original_pred', 'modified_pred', 'addition']
     df = pd.DataFrame(columns=columns)

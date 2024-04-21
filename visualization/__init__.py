@@ -1,2 +1,2 @@
-from .basic_visualization import visualise, visualise_height_width_distr, show_difference, show_difference_predefined, show_attack_results
+from .basic_visualization import visualise, visualise_height_width_distr, show_difference, show_attack_results
 from .weight_score_dist import get_maniqa_weights_scores_visualisation

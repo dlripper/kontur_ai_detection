@@ -1,26 +1,41 @@
 import os
 import torch
 import torchvision.models as models
-from torchvision.models.resnet import ResNet50_Weights
-
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 from tqdm import tqdm
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
 from scipy.linalg import sqrtm
+from torchvision.models.resnet import ResNet50_Weights
 from data.recover import get_recovered
 from data.get_dataloader import CustomDataset
 from torch.utils.data import DataLoader
+from typing import Tuple, List
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def pair_fid(dist_1, dist_2, eps=1e-6): 
+def pair_fid(dist_1: np.ndarray, dist_2: np.ndarray, eps: float = 1e-6) -> Tuple[float, float]:
+    """
+    Calculate the Frechet Inception Distance (FID) between two distributions.
+
+    The FID is calculated based on the covariance matrices and mean differences
+    between the two distributions.
+
+    Args:
+        dist_1 (np.ndarray): First distribution (samples x features).
+        dist_2 (np.ndarray): Second distribution (samples x features).
+        eps (float, optional): Small value to ensure positive definite matrices. Default is 1e-6.
+    
+    Returns:
+        Tuple[float, float]: The FID and an additional value (used for verification or other purposes).
+    """
     cov_1, cov_2 = np.cov(dist_1, rowvar=False), np.cov(dist_2, rowvar=False)
     diff = np.mean(cov_1, axis=0) - np.mean(cov_2, axis=0)
 
@@ -37,7 +52,16 @@ model_types = ['_original', 'imagenet_ai_0419_biggan', 'imagenet_ai_0419_vqdm',
        'imagenet_ai_0508_adm', 'imagenet_glide', 'imagenet_midjourney']
 
 
-def frechet_inception_distance():
+def frechet_inception_distance() -> np.ndarray:
+    """
+    Compute the pairwise Frechet Inception Distance between different types of models.
+
+    This function first extracts compact representations (features) from each dataset
+    and then calculates the FID for each pair of distributions.
+
+    Returns:
+        np.ndarray: A matrix containing the pairwise FID values for all model types.
+    """
     #step 1: getting compact representations
     resnet50 = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
     resnet50.eval()
@@ -73,7 +97,21 @@ def frechet_inception_distance():
     return pairwise_distances
 
 
-def mean_gaussian_kernel(x, y, sigma=1.0):
+def mean_gaussian_kernel(x: torch.Tensor, y: torch.Tensor, sigma: float = 1.0) -> float:
+    """
+    Calculate the mean Gaussian kernel value between two sets of feature vectors.
+
+    This function computes the mean of Gaussian kernels between each pair of 
+    vectors from the two sets, using the specified sigma for the kernel function.
+
+    Args:
+        x (torch.Tensor): First set of feature vectors (shape: [n1, d]).
+        y (torch.Tensor): Second set of feature vectors (shape: [n2, d]).
+        sigma (float, optional): The standard deviation used in the Gaussian kernel. Default is 1.0.
+    
+    Returns:
+        float: The mean Gaussian kernel value between the two sets.
+    """
     n2 = y.size(0)
     dim = x.size(1)
 
@@ -89,7 +127,20 @@ def mean_gaussian_kernel(x, y, sigma=1.0):
     return np.mean(kernels)
 
 
-def pair_mmd(x, y, sigma=1.0):
+def pair_mmd(x: torch.Tensor, y: torch.Tensor, sigma: float = 1.0) -> Tuple[float, float]:
+    """
+    Calculate the Maximum Mean Discrepancy (MMD) between two sets of feature vectors.
+
+    MMD is a measure of the difference between two distributions, calculated using a Gaussian kernel.
+
+    Args:
+        x (torch.Tensor): First set of feature vectors.
+        y (torch.Tensor): Second set of feature vectors.
+        sigma (float, optional): The standard deviation used in the Gaussian kernel. Default is 1.0.
+    
+    Returns:
+        Tuple[float, float]: The calculated MMD and a verification value (typically the same as MMD).
+    """
     kernel_xx = mean_gaussian_kernel(x, x, sigma)
     kernel_yy = mean_gaussian_kernel(y, y, sigma)
     kernel_xy = mean_gaussian_kernel(x, y, sigma)
@@ -98,7 +149,18 @@ def pair_mmd(x, y, sigma=1.0):
     return mmd, mmd 
 
 
-def maximum_mean_discrepancy(sigma=1.0):
+def maximum_mean_discrepancy(sigma: float = 1.0) -> np.ndarray:
+    """
+    Calculate the pairwise Maximum Mean Discrepancy (MMD) for a set of model types.
+
+    This function computes the MMD for each pair of models in `model_types`, loading their feature representations from files.
+
+    Args:
+        sigma (float, optional): The standard deviation used in the Gaussian kernel. Default is 1.0.
+    
+    Returns:
+        np.ndarray: A matrix containing the pairwise MMD values for all model types.
+    """
     pairwise_distances = np.zeros((len(model_types), len(model_types)))
     for i, model_type in enumerate(model_types):
         for j in range(i + 1, len(model_types)):
@@ -113,7 +175,19 @@ def maximum_mean_discrepancy(sigma=1.0):
     plt.title("Maximum Mean Discrepancy Matrix")
     plt.show()
 
-def tsne_compression():
+
+def tsne_compression() -> Tuple[np.ndarray, List[str], np.ndarray]:
+    """
+    Compress feature representations using t-SNE for visualization.
+
+    This function loads feature representations from the defined `model_types`,
+    concatenates them, and applies t-SNE for dimensionality reduction. The resulting
+    2D coordinates are then normalized with a standard scaler.
+
+    Returns:
+        Tuple[np.ndarray, List[str], np.ndarray]: The t-SNE coordinates, concatenated labels, 
+        and unique labels from the compressed data.
+    """
     concatenated_labels = []
     for i, model_type in enumerate(model_types):
         dist_1 = np.load(f"utils/{model_type.split('_')[-1]}_fid.npy") #utils
@@ -131,10 +205,17 @@ def tsne_compression():
 
     return tsne_data_normalized, concatenated_labels, unique_labels
 
-def tsne_comparison():
-    pass
 
-def get_density_interpretation():
+def get_density_interpretation() -> None:
+    """
+    Visualize data density and the Frechet Inception Distance (FID) matrix.
+
+    This function plots the t-SNE compression of feature representations along with the 
+    Frechet Inception Distance (FID) matrix as a heatmap.
+
+    Returns:
+        None: This function is designed for visualization; it doesn't return any values.
+    """
     fid_pairwise_distances = frechet_inception_distance()
     tsne_data_normalized, concatenated_labels, unique_labels = tsne_compression()
 

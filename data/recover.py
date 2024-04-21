@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from typing import List, Tuple, Optional
 
+
 def get_untyped(csv_name: str) -> Tuple[List[str], List[str]]:
     """
     Get untyped images and missed types from a CSV file.
@@ -29,14 +30,14 @@ def get_untyped(csv_name: str) -> Tuple[List[str], List[str]]:
     return untyped_images, missed_types
 
 
-def get_recovered(csv_name: str, formats: Optional[list] = None, path: Optional[str] = "data/generated-or-not") -> pd.DataFrame:
+def get_recovered(csv_name: str, formats: Optional[list] = None, path: str = "data/generated-or-not") -> pd.DataFrame:
     """
     Get recovered DataFrame from a CSV file.
 
     Args:
         csv_name (str): Name of the CSV file containing image data.
         formats (list, optional): List of image formats to filter (default is None).
-        path (str, optional): Path to the directory containing CSV file and images (default is "data/generated-or-not").
+        path (str): Path to the directory containing CSV file and images (default is "data/generated-or-not").
 
     Returns:
         pd.DataFrame: Recovered DataFrame.
@@ -56,3 +57,4 @@ def get_recovered(csv_name: str, formats: Optional[list] = None, path: Optional[
     df.reset_index(drop=True, inplace=True)
 
     return df
+    

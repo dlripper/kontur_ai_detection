@@ -2,13 +2,33 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import wandb
+from torch.utils.data import DataLoader
+from typing import Optional, Union, Dict
 from tqdm import tqdm
 
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 
-def loss_calc(loss_function, outputs, labels):
+def loss_calc(
+    loss_function: nn.Module, 
+    outputs: torch.Tensor, 
+    labels: torch.Tensor
+) -> torch.Tensor:
+    """
+    Calculate loss based on the given loss function.
+
+    Args:
+        loss_function: The loss function to use for calculation (e.g., CrossEntropyLoss, BCELoss).
+        outputs: The model's output predictions.
+        labels: The ground truth labels.
+
+    Returns:
+        The computed loss as a tensor.
+
+    Raises:
+        NotImplementedError: If the loss function is not implemented.
+    """
     if isinstance(loss_function, torch.nn.modules.loss.CrossEntropyLoss):
          return loss_function(outputs, labels) 
     elif isinstance(loss_function, torch.nn.modules.loss.BCELoss):
@@ -17,7 +37,23 @@ def loss_calc(loss_function, outputs, labels):
         raise NotImplementedError("This function is not implemented yet")
 
 
-def predicted_calc(loss_function, outputs):
+def predicted_calc(
+    loss_function: nn.Module, 
+    outputs: torch.Tensor
+) -> torch.Tensor:
+    """
+    Calculate the predicted class or value based on the given loss function.
+
+    Args:
+        loss_function: The loss function to determine the prediction logic.
+        outputs: The model's output predictions.
+
+    Returns:
+        The predicted classes or binary outputs.
+
+    Raises:
+        NotImplementedError: If the prediction logic is not implemented for the given loss function.
+    """
     if isinstance(loss_function, torch.nn.modules.loss.CrossEntropyLoss):
         _, predicted = torch.max(outputs.data, 1)
         return predicted
@@ -27,7 +63,36 @@ def predicted_calc(loss_function, outputs):
         raise NotImplementedError("This function is not implemented yet")
 
 
-def train_model(model, optimizer, loss_function, train_dataloader, test_dataloader, num_epochs, wandb_specs=None):
+WandbSpecsType = Optional[Dict[str, Union[str, Dict[str, Union[str, int]]]]]
+
+
+def train_model(
+    model: nn.Module,
+    optimizer: torch.optim.Optimizer,
+    loss_function: nn.Module,
+    train_dataloader: DataLoader,
+    test_dataloader: DataLoader,
+    num_epochs: int,
+    wandb_specs: WandbSpecsType = None,
+) -> None:
+    """
+    Train the model with the given optimizer, loss function, and data loaders.
+
+    Args:
+        model: The model to train.
+        optimizer: The optimizer used for updating weights.
+        loss_function: The loss function to use during training.
+        train_dataloader: The data loader for the training set.
+        test_dataloader: The data loader for the validation set.
+        num_epochs: The number of epochs to train for.
+        wandb_specs: Optional configuration for logging with Weights & Biases.
+
+    Returns:
+        None
+
+    Raises:
+        NotImplementedError: If the can't calc the provided loss_function
+    """
     model.to(device)
     if wandb_specs is not None:
         wandb.login()

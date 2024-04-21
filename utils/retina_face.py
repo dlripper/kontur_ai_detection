@@ -5,12 +5,21 @@ import shutil
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import torch
 
 from utils.inf import get_inference
 from data.recover import get_recovered
 
 
 def get_retina_train_dataset() -> None:
+    """
+    Prepare the training dataset for a retina-based model.
+
+    This function performs three steps:
+    1. Copy faces from the initial directory to the training dataset directory if their dimensions are valid.
+    2. Load the original training data to extract relevant metadata.
+    3. Create a new DataFrame to represent the face-based training dataset.
+    """
     #step 1
     face_files = os.listdir("data/generated-or-not-faces/images_initial")
     matching = pd.read_csv("data/generated-or-not-faces/matching.csv")
@@ -41,6 +50,11 @@ def get_retina_train_dataset() -> None:
 
 
 def get_retina_inf_dataset() -> None:
+    """
+    Prepare the inference dataset for a retina-based model.
+
+    This function creates a DataFrame for the retina-based inference dataset by matching face files with original IDs.
+    """
     matching = pd.read_csv("data/generated-or-not-faces/matching.csv")
     matching = dict(zip(matching.modified_image, matching.orig_image))
     df = get_recovered("test.csv")
@@ -56,7 +70,19 @@ def get_retina_inf_dataset() -> None:
     df_face.to_csv("data/generated-or-not-faces/test.csv", index=False)
 
 
-def get_faces_predicts(model, face_model, csv_output="utils/predict.csv"):
+def get_faces_predicts(
+    model: torch.nn.Module, 
+    face_model: torch.nn.Module, 
+    csv_output: str = "utils/predict.csv"
+) -> None:
+    """
+    Get predictions for the face-based dataset and combine them with the main model's predictions.
+
+    This function performs the following steps:
+    1. Obtain predictions for both the main dataset and the retina-based face dataset.
+    2. Combine these predictions, ensuring valid predictions are used.
+    3. Save the combined predictions to a CSV file and visualize them.
+    """
     get_inference([model], "utils/main_model_predict.csv")
     get_inference([face_model], "utils/face_model_predict.csv", "data/generated-or-not-faces") ##<---> need to solve it somehow!
 
@@ -68,7 +94,12 @@ def get_faces_predicts(model, face_model, csv_output="utils/predict.csv"):
     visualise_faces_predicts()
 
 
-def visualise_faces_predicts():
+def visualise_faces_predicts() -> None:
+    """
+    Visualize the predictions for the face-based dataset.
+
+    This function plots the predicted images with their corresponding targets to show positive and negative predictions.
+    """
     face_model_predict = pd.read_csv("utils/face_model_predict.csv")
     positive_predict = face_model_predict[face_model_predict.target > 0.5][:3]
     negative_predict = face_model_predict[(face_model_predict.target != -1) & (face_model_predict.target < 0.5)][:3]
